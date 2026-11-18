@@ -2,6 +2,7 @@
 // The layout refuses to render a page that is not listed here, and
 // /og/<page>.png is generated for every entry, so no page ships without one.
 import type { Nodo } from "./og/h";
+import { ogCortes } from "./og/cortes";
 import { ogInflacion } from "./og/inflacion";
 import { ogSimple } from "./og/simple";
 
@@ -29,6 +30,12 @@ export const PAGINAS: Pagina[] = [
     titulo: "¿La inflación ya empieza con cero?",
     descripcion: "Milei dijo que la inflación iba a empezar con cero. Mes por mes, lo que dijo y lo que pasó.",
     og: ogInflacion,
+  },
+  {
+    path: "/cortes",
+    titulo: "¿Cuántas horas estuvo sin luz tu barrio?",
+    descripcion: "Verano por verano, las horas sin luz de cada barrio de Buenos Aires.",
+    og: ogCortes,
   },
   {
     path: "/404",

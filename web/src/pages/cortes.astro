@@ -1,0 +1,221 @@
+---
+// ¿Cuántas horas estuvo sin luz tu barrio? Built from the radar's sites/barrio
+// prototype (private repo); barrios.json is its dist/barrios.json.
+import Base from "../layouts/Base.astro";
+import D from "../data/cortes/barrios.json";
+---
+<Base>
+  <Fragment slot="head">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Familjen+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+  </Fragment>
+<main>
+<header>
+  <h1>¿Cuántas horas estuvo sin luz tu barrio?</h1>
+  <label class="elegir">Vivo en <select id="barrio"></select></label>
+  <p class="cifra" id="cifra"></p>
+  <p class="frase" id="frase"></p>
+  <p class="contexto" id="contexto"></p>
+  <div class="veranos" id="veranos" role="group" aria-label="Verano"></div>
+  <p class="peor" id="peor"></p>
+</header>
+<div class="derecha">
+  <svg id="mapa" role="img" aria-label="Mapa de barrios de Buenos Aires"></svg>
+  <div class="escala"><span>0 h</span><i id="escala"></i><span>10 h o más</span></div>
+  <h2 id="titulo-lista"></h2>
+  <ol id="lista"></ol>
+</div>
+<footer>
+  <p>Cada barrio suma los usuarios que aparecieron sin luz en el mapa de cortes del ENRE, multiplicados por el tiempo que estuvieron así, y lo divide por las viviendas que contó el Censo 2022. Verano es de diciembre a febrero. Los usuarios incluyen comercios y las viviendas incluyen casas vacías, así que es un promedio aproximado.</p>
+  <p>Desde 2020, <a href="https://github.com/j-e-d/datosenre">j-e-d/datosenre</a> guarda el mapa del ENRE cada 20 minutos. Lo verificamos con el archivo de <a href="https://github.com/elsonidoq/enre">Pablo Zivic</a>, que lo guardó cada 10 minutos entre febrero de 2024 y agosto de 2025: para el verano 2024/25 los dos dan lo mismo con menos de 4% de diferencia. Viviendas: INDEC, Censo 2022. Límites de barrios: Buenos Aires Data.</p>
+</footer>
+</main>
+</Base>
+
+<script is:inline define:vars={{ D }}>
+const $ = (id) => document.getElementById(id);
+const fmt = (x, d = 1) => x.toLocaleString("es-AR", { minimumFractionDigits: d, maximumFractionDigits: d });
+const nombreVerano = (v) => `${v}/${String(v + 1).slice(2)}`;
+const corto = (v) => `${String(v).slice(2)}/${String(v + 1).slice(2)}`;
+const slug = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z]+/g, "-").replace(/^-|-$/g, "");
+const ULTIMO = D.veranos[D.veranos.length - 1];
+const B = D.barrios;
+
+// city average per summer, weighted by dwellings
+const ciudad = {};
+for (const v of D.veranos) {
+  let h = 0, n = 0;
+  for (const b of B) { h += b.horas[v] * b.viviendas; n += b.viviendas; }
+  ciudad[v] = h / n;
+}
+
+// lights on (warm yellow) through grey to lights off (near black), square-root scale capped at 10 h
+const STOPS = [[246, 214, 122], [128, 132, 142], [22, 24, 29]];
+const color = (h) => {
+  const t = Math.sqrt(Math.min(h, 10) / 10) * 2, i = Math.min(Math.floor(t), 1), f = t - i;
+  return `rgb(${STOPS[i].map((c, j) => Math.round(c + (STOPS[i + 1][j] - c) * f)).join(",")})`;
+};
+$("escala").style.background = `linear-gradient(90deg, ${[0, 0.25, 1, 2.5, 5, 10].map(color).join(",")})`;
+
+const svgns = "http://www.w3.org/2000/svg";
+$("mapa").setAttribute("viewBox", D.viewBox);
+const paths = {};
+// a light halo behind every barrio traces the city's edge, so dark barrios stand out from a dark page
+const contorno = document.createElementNS(svgns, "g");
+contorno.setAttribute("class", "contorno");
+contorno.setAttribute("aria-hidden", "true");
+$("mapa").appendChild(contorno);
+for (const b of B) {
+  const h = document.createElementNS(svgns, "path");
+  h.setAttribute("d", b.path);
+  contorno.appendChild(h);
+}
+for (const b of B) {
+  const p = document.createElementNS(svgns, "path");
+  p.setAttribute("d", b.path);
+  const t = document.createElementNS(svgns, "title");
+  p.appendChild(t);
+  p.addEventListener("click", () => elegir(b.barrio));
+  $("mapa").appendChild(p);
+  paths[b.barrio] = p;
+  const o = document.createElement("option");
+  o.value = b.barrio; o.textContent = b.barrio;
+  $("barrio").appendChild(o);
+}
+$("barrio").addEventListener("change", (e) => elegir(e.target.value));
+
+let barrio, verano = ULTIMO;
+
+function elegir(nombre, push = true) {
+  barrio = B.find((b) => b.barrio === nombre);
+  if (push) history.replaceState(null, "", "#" + slug(nombre));
+  pintar();
+}
+function elegirVerano(v) { verano = v; pintar(); }
+
+function pintar() {
+  const b = barrio, h = b.horas[verano];
+  $("barrio").value = b.barrio;
+  $("cifra").innerHTML = `${fmt(h)}<small>horas</small>`;
+  $("frase").textContent = `sin luz, en promedio, cada casa de ${b.barrio} el verano ${nombreVerano(verano)}.`;
+  const orden = [...B].sort((x, y) => y.horas[verano] - x.horas[verano]);
+  const pos = orden.indexOf(b) + 1;
+  const lugar = pos === 1 ? "Fue el barrio con más horas sin luz." : pos === B.length ? "Fue el barrio con menos horas sin luz." : `Puesto ${pos} de ${B.length}.`;
+  $("contexto").textContent = `${lugar} Promedio de la ciudad: ${fmt(ciudad[verano])} horas.`;
+
+  $("veranos").replaceChildren(...D.veranos.map((v) => {
+    const btn = document.createElement("button");
+    btn.setAttribute("aria-pressed", v === verano);
+    btn.innerHTML = `<span>${corto(v)}</span><b>${fmt(b.horas[v])}</b>`;
+    btn.addEventListener("click", () => elegirVerano(v));
+    return btn;
+  }));
+
+  const p = b.peor;
+  const dia = new Date(p.dia + "T12:00:00").toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  $("peor").innerHTML = `Su peor día desde 2020<b>${dia}</b><span>${p.usuarios.toLocaleString("es-AR")} usuarios sin luz al mismo tiempo.</span>`;
+
+  for (const x of B) {
+    const el = paths[x.barrio];
+    el.style.fill = color(x.horas[verano]);
+    el.classList.toggle("elegido", x === b);
+    el.firstChild.textContent = `${x.barrio}: ${fmt(x.horas[verano])} h`;
+  }
+  paths[b.barrio].parentNode.appendChild(paths[b.barrio]); // outline on top
+
+  $("titulo-lista").textContent = `Todos los barrios, verano ${nombreVerano(verano)}`;
+  $("lista").replaceChildren(...orden.map((x, i) => {
+    const li = document.createElement("li");
+    li.className = x === b ? "elegido" : "";
+    li.innerHTML = `<span class="pos">${i + 1}</span><span class="n">${x.barrio}</span><span class="h">${fmt(x.horas[verano])}</span>`;
+    li.addEventListener("click", () => { elegir(x.barrio); window.scrollTo({ top: 0, behavior: "smooth" }); });
+    return li;
+  }));
+}
+
+const desdeHash = B.find((b) => slug(b.barrio) === location.hash.slice(1));
+addEventListener("hashchange", () => {
+  const b = B.find((b) => slug(b.barrio) === location.hash.slice(1));
+  if (b && b !== barrio) elegir(b.barrio, false);
+});
+const peorUltimo = [...B].sort((x, y) => y.horas[ULTIMO] - x.horas[ULTIMO])[0];
+elegir((desdeHash || peorUltimo).barrio, false);
+</script>
+
+<style is:global>
+:root {
+  --fondo: #F3F3F1; --tinta: #15171C; --gris: #5E626B; --linea: #DCDDD9; --tenue: #A4A7AE;
+  --celeste: #2F7DC4; --borde-mapa: #F3F3F1; --contorno: transparent;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fondo: #121419; --tinta: #EEEFF2; --gris: #A4A8B1; --linea: #262A32; --tenue: #5E636D;
+    --celeste: #6FB0EA; --borde-mapa: #4A505B; --contorno: #8A8F99;
+  }
+}
+:root[data-theme="dark"] {
+  --fondo: #121419; --tinta: #EEEFF2; --gris: #A4A8B1; --linea: #262A32; --tenue: #5E636D;
+  --celeste: #6FB0EA; --borde-mapa: #4A505B; --contorno: #8A8F99;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--fondo); color: var(--tinta); font: 17px/1.5 "Familjen Grotesk", system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+main { max-width: 1240px; margin: 0 auto; padding: 0 16px 96px; display: grid; grid-template-columns: minmax(300px, 0.85fr) 1.5fr; column-gap: 56px; align-items: start; }
+h1, h2, p { margin: 0; }
+a { color: inherit; text-underline-offset: 3px; }
+button, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--celeste); outline-offset: 2px; }
+
+header { position: sticky; top: 0; padding: 40px 0; }
+h1 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: clamp(24px, 4vw, 36px); line-height: 1.1; letter-spacing: -0.01em; }
+.elegir { margin-top: 20px; display: flex; align-items: baseline; gap: 10px; font-size: 16px; color: var(--gris); }
+select { appearance: none; background: none; border: 0; border-bottom: 2px solid var(--tinta); border-radius: 0; padding: 0 22px 2px 0; font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 22px; color: var(--tinta); cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 6px top 55%, right 0 top 55%; background-size: 6px 6px; background-repeat: no-repeat; }
+.cifra { margin-top: 18px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 800; font-size: clamp(96px, 10.5vw, 168px); line-height: 0.8; letter-spacing: -0.05em; margin-left: -0.04em; }
+.cifra small { font-size: 0.24em; font-weight: 700; letter-spacing: -0.01em; margin-left: 0.12em; }
+.frase { margin-top: 18px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 500; font-size: clamp(20px, 2.4vw, 24px); line-height: 1.2; max-width: 22ch; }
+.contexto { margin-top: 10px; color: var(--gris); font-size: 16px; }
+
+.veranos { margin-top: 28px; display: grid; grid-template-columns: repeat(6, 1fr); border-top: 1px solid var(--linea); }
+.veranos button { background: none; border: 0; border-top: 3px solid transparent; margin-top: -2px; padding: 8px 0 0; text-align: left; cursor: pointer; }
+.veranos button span { display: block; font-size: 13px; color: var(--gris); }
+.veranos button b { display: block; font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 22px; line-height: 1.1; }
+.veranos button:hover b { color: var(--celeste); }
+.veranos button[aria-pressed="true"] { border-top-color: var(--tinta); }
+.veranos button[aria-pressed="true"] span { color: var(--tinta); font-weight: 600; }
+
+.peor { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--linea); font-size: 16px; line-height: 1.4; }
+.peor b { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 20px; display: block; line-height: 1.2; margin-top: 2px; }
+.peor span { color: var(--gris); }
+
+.derecha { padding-top: 40px; }
+svg { display: block; width: 100%; height: auto; max-height: 82vh; }
+svg path { stroke: var(--borde-mapa); stroke-width: 70; stroke-linejoin: round; cursor: pointer; transition: fill 0.25s; }
+svg .contorno path { fill: none; stroke: var(--contorno); stroke-width: 160; pointer-events: none; transition: none; }
+svg path:hover { stroke: var(--celeste); stroke-width: 110; }
+svg path.elegido { stroke: var(--celeste); stroke-width: 200; }
+.escala { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 13px; color: var(--gris); }
+.escala i { flex: 0 0 160px; height: 10px; border-radius: 2px; }
+
+h2 { margin-top: 48px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: 22px; line-height: 1.2; }
+ol { list-style: none; margin: 14px 0 0; padding: 0; columns: 2; column-gap: 40px; }
+li { break-inside: avoid; display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: baseline; padding: 5px 0; border-top: 1px solid var(--linea); font-size: 16px; cursor: pointer; }
+li:hover .n { color: var(--celeste); }
+li .pos { color: var(--tenue); font-size: 13px; }
+li .h { font-weight: 600; }
+li.elegido { color: var(--celeste); font-weight: 600; }
+
+footer { grid-column: 2; margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--linea); font-size: 14px; line-height: 1.5; color: var(--gris); display: grid; gap: 10px; max-width: 68ch; }
+
+@media (max-width: 860px) {
+  main { grid-template-columns: 1fr; }
+  header { position: static; padding: 28px 0 0; }
+  .cifra { font-size: 120px; }
+  .derecha { padding-top: 28px; }
+  svg { max-height: none; }
+  ol { columns: 1; }
+  footer { grid-column: 1; }
+}
+</style>
