@@ -30,8 +30,11 @@ export async function svg(nodo: Nodo): Promise<string> {
   return satori(nodo as never, { width: ANCHO, height: ALTO, fonts: cargarFuentes() });
 }
 
+// Laid out at 1200×630 but rasterized at 2×, so the card stays sharp on
+// high-density screens and when X or WhatsApp scale it up.
+export const ESCALA = 2;
 export async function png(nodo: Nodo): Promise<Uint8Array> {
-  return new Resvg(await svg(nodo), { fitTo: { mode: "width", value: ANCHO } }).render().asPng();
+  return new Resvg(await svg(nodo), { fitTo: { mode: "width", value: ANCHO * ESCALA } }).render().asPng();
 }
 
 export const COLORES = { fondo: "#F3F3F1", tinta: "#15171C", gris: "#5E626B", celeste: "#2F7DC4" };

@@ -4,6 +4,7 @@
 import type { Nodo } from "./og/h";
 import { ogCortes } from "./og/cortes";
 import { ogInflacion } from "./og/inflacion";
+import { ogPicasso } from "./og/picasso";
 import { ogSimple } from "./og/simple";
 
 export const SITIO = {
@@ -36,6 +37,12 @@ export const PAGINAS: Pagina[] = [
     titulo: "¿Cuántas horas estuvo sin luz tu barrio?",
     descripcion: "Verano por verano, las horas sin luz de cada barrio de Buenos Aires.",
     og: ogCortes,
+  },
+  {
+    path: "/picasso",
+    titulo: "¿Lo dijo Picasso?",
+    descripcion: "Las frases de famosos que Milei citó en sus discursos oficiales, una por una: quién las dijo de verdad.",
+    og: ogPicasso,
   },
   {
     path: "/404",
