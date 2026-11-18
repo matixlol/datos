@@ -21,9 +21,8 @@ const fuente = (archivo: string) => readFileSync(resolve(process.cwd(), "src/og/
 let fuentes: Parameters<typeof satori>[1]["fonts"] | null = null;
 const cargarFuentes = () =>
   (fuentes ??= [
-    { name: "Bricolage", data: fuente("bricolage-500.ttf"), weight: 500, style: "normal" },
-    { name: "Bricolage", data: fuente("bricolage-800.ttf"), weight: 800, style: "normal" },
-    { name: "Familjen", data: fuente("familjen-400.ttf"), weight: 400, style: "normal" },
+    ...([500, 600, 700, 800] as const).map((weight) => ({ name: "Bricolage", data: fuente(`bricolage-${weight}.ttf`), weight, style: "normal" as const })),
+    ...([400, 500, 600] as const).map((weight) => ({ name: "Familjen", data: fuente(`familjen-${weight}.ttf`), weight, style: "normal" as const })),
   ]);
 
 export async function svg(nodo: Nodo): Promise<string> {
@@ -34,7 +33,7 @@ export async function svg(nodo: Nodo): Promise<string> {
 // high-density screens and when X or WhatsApp scale it up.
 export const ESCALA = 2;
 export async function png(nodo: Nodo): Promise<Uint8Array> {
-  return new Resvg(await svg(nodo), { fitTo: { mode: "width", value: ANCHO * ESCALA } }).render().asPng();
+  return new Resvg(await svg(nodo), { fitTo: { mode: "width", value: ANCHO * ESCALA }, background: COLORES.fondo }).render().asPng();
 }
 
-export const COLORES = { fondo: "#F3F3F1", tinta: "#15171C", gris: "#5E626B", celeste: "#2F7DC4" };
+export const COLORES = { fondo: "#F3F3F1", tinta: "#15171C", gris: "#454950", celeste: "#2F7DC4" };

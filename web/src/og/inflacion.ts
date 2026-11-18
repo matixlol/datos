@@ -9,7 +9,7 @@ export async function ogInflacion() {
   return h(
     "div",
     { width: "100%", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "space-between", background: C.fondo, color: C.tinta, padding: "52px 72px 52px", fontFamily: "Bricolage" },
-    h("div", { fontWeight: 500, fontSize: 50, lineHeight: 1.05, letterSpacing: "-0.01em" }, "¿La inflación ya empieza con cero?"),
+    h("div", { fontWeight: 700, fontSize: 54, lineHeight: 1.05, letterSpacing: "-0.01em" }, "¿La inflación ya empieza con cero?"),
     h(
       "div",
       { display: "flex", width: "100%", alignItems: "flex-end", justifyContent: "space-between" },
@@ -17,15 +17,15 @@ export async function ogInflacion() {
       h(
         "div",
         { display: "flex", flexDirection: "column", alignItems: "flex-end" },
-        h("div", { fontWeight: 500, fontSize: 36, color: C.gris }, mayus(MES[+ultMes.slice(5) - 1])),
+        h("div", { fontWeight: 600, fontSize: 40, color: C.gris }, mayus(MES[+ultMes.slice(5) - 1])),
         h("div", { fontWeight: 800, fontSize: 104, lineHeight: 0.9, letterSpacing: "-0.03em" }, pct(ultVal)),
       ),
     ),
     h(
       "div",
       { display: "flex", flexDirection: "column", borderLeft: `6px solid ${C.celeste}`, paddingLeft: 24 },
-      h("div", { fontWeight: 500, fontSize: 38, lineHeight: 1.2, maxWidth: 1000 }, `«${ultimo.cita}»`),
-      h("div", { fontFamily: "Familjen", fontSize: 26, color: C.gris, marginTop: 8 }, `Milei, ${fecha}`),
+      h("div", { fontWeight: 600, fontSize: 40, lineHeight: 1.2, maxWidth: 1000 }, `«${ultimo.cita}»`),
+      h("div", { fontFamily: "Familjen", fontWeight: 500, fontSize: 30, color: C.gris, marginTop: 8 }, `Milei, ${fecha}`),
     ),
   );
 }

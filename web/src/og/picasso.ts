@@ -11,8 +11,8 @@ export function ogPicasso() {
     h(
       "div",
       { display: "flex", flexDirection: "column" },
-      h("div", { fontFamily: "Familjen", fontSize: 30, color: K.gris }, "Milei la citó como de Picasso:"),
-      h("div", { fontWeight: 500, fontSize: 52, lineHeight: 1.12, letterSpacing: "-0.01em", marginTop: 14, maxWidth: 1040 }, `«${p.frase}»`),
+      h("div", { fontFamily: "Familjen", fontWeight: 600, fontSize: 36, color: K.gris }, "Milei la citó como de Picasso:"),
+      h("div", { fontWeight: 700, fontSize: 58, lineHeight: 1.1, letterSpacing: "-0.01em", marginTop: 14, maxWidth: 1040 }, `«${p.frase}»`),
     ),
     h(
       "div",
@@ -21,10 +21,10 @@ export function ogPicasso() {
       h(
         "div",
         { display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" },
-        h("div", { fontWeight: 800, fontSize: 64, lineHeight: 0.95 }, `${nunca} de ${C.length}`),
-        h("div", { fontFamily: "Familjen", fontSize: 26, color: K.gris, marginTop: 8, maxWidth: 520, textAlign: "right" }, "frases de famosos que citó Milei no las dijo quien él dice"),
+        h("div", { fontWeight: 800, fontSize: 76, lineHeight: 0.95 }, `${nunca} de ${C.length}`),
+        h("div", { fontFamily: "Familjen", fontWeight: 500, fontSize: 31, lineHeight: 1.2, color: K.gris, marginTop: 10, maxWidth: 560, textAlign: "right" }, "frases de famosos que citó Milei no las dijo quien él dice"),
       ),
     ),
-    h("div", { fontFamily: "Familjen", fontSize: 26, color: K.gris }, "¿Lo dijo Picasso? · datos.mati.lol/picasso"),
+    h("div", { fontFamily: "Familjen", fontWeight: 500, fontSize: 32, color: K.gris }, "¿Lo dijo Picasso? · datos.mati.lol/picasso"),
   );
 }
