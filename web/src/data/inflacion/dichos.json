@@ -1,0 +1,61 @@
+[
+  {
+    "fecha": "2025-06-13",
+    "lugar": "Premio Escuela de Salamanca, Centro Riojano, Madrid",
+    "cita": "La inflación consumidor llegó a tocar niveles del 300% anual y – hoy - viaja al 20% anual y va a desaparecer a mitad del año que viene.",
+    "fuente": "https://www.casarosada.gob.ar/informacion/discursos/50997",
+    "objetivo": "2026-06"
+  },
+  {
+    "fecha": "2025-06-25",
+    "lugar": "Acto de La Libertad Avanza, Puerto Madero",
+    "cita": "En nuestra hipótesis, es que la inflación se va a morir a mitad del año que viene.",
+    "fuente": "https://www.casarosada.gob.ar/informacion/discursos/51013",
+    "objetivo": "2026-06"
+  },
+  {
+    "fecha": "2025-06-25",
+    "lugar": "Acto de La Libertad Avanza, Puerto Madero",
+    "cita": "Federico dijo que podíamos llegar a fin de año ya con cero, y como creo que nos va a tocar perder la apuesta […] yo dije que, cuando la inflación estuviera en cero iba a hacer un recital…, les aviso que ya estoy empezando a ensayar seis temas.",
+    "fuente": "https://www.casarosada.gob.ar/informacion/discursos/51013",
+    "objetivo": "2025-12",
+    "nota": "Era una apuesta.",
+    "broma": true
+  },
+  {
+    "fecha": "2025-12-17",
+    "lugar": "Stream «La Misa», canal Carajo",
+    "cita": "Para mitad del año que viene o agosto, la inflación va a pasar a ser de cero coma algo, seguro va a empezar con cero.",
+    "fuente": "https://www.minutouno.com/politica/javier-milei-le-puso-fecha-la-inflacion-cero-coma-algo-n6225413",
+    "objetivo": "2026-08"
+  },
+  {
+    "fecha": "2026-03-16",
+    "lugar": "Bolsa de Comercio de Córdoba",
+    "cita": "Seguimos convencidos que para lo que es - el mes de agosto - la inflación podría empezar con cero.",
+    "fuente": "https://www.casarosada.gob.ar/informacion/discursos/51194",
+    "objetivo": "2026-08"
+  },
+  {
+    "fecha": "2026-03-19",
+    "lugar": "Foro Económico del NOA, Tucumán",
+    "cita": "Es de esperar que, para el mes de agosto de este año, la inflación minorista arranque con cero. Les guste o no les guste.",
+    "fuente": "https://www.casarosada.gob.ar/informacion/discursos/51199",
+    "objetivo": "2026-08",
+    "principal": true
+  },
+  {
+    "fecha": "2026-08-21",
+    "lugar": "Bolsa de Comercio de Rosario",
+    "cita": "Dicho sea de paso también dije que iba a empezar con cero la inflación de agosto y la de julio empezó con cero.",
+    "fuente": "https://www.casarosada.gob.ar/informacion/discursos/51349",
+    "contra": "2026-07",
+    "nota": "Hablaba de la mayorista."
+  },
+  {
+    "fecha": "2026-10-30",
+    "lugar": "Universidad Torcuato Di Tella",
+    "cita": "Me gustaría que la inflación ya llevara algunos meses empezando con cero.",
+    "fuente": "https://www.casarosada.gob.ar/informacion/discursos/51415"
+  }
+]

@@ -1,0 +1,26 @@
+---
+import Base from "../layouts/Base.astro";
+import { PAGINAS } from "../sitio";
+
+const proyectos = PAGINAS.filter((p) => p.path !== "/" && p.path !== "/404");
+---
+<Base>
+  <main>
+    <h1>datos</h1>
+    <ul>
+      {proyectos.map((p) => (
+        <li><a href={p.path}>{p.titulo}</a></li>
+      ))}
+    </ul>
+  </main>
+</Base>
+
+<style is:global>
+:root { --fondo: #F3F3F1; --tinta: #15171C; }
+@media (prefers-color-scheme: dark) { :root { --fondo: #121419; --tinta: #EEEFF2; } }
+body { margin: 0; background: var(--fondo); color: var(--tinta); font: 20px/1.5 system-ui, sans-serif; }
+main { max-width: 720px; margin: 0 auto; padding: 48px 16px; }
+h1 { font-size: 40px; margin: 0 0 24px; }
+ul { padding: 0; list-style: none; }
+a { color: inherit; text-underline-offset: 4px; }
+</style>

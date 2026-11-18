@@ -1,0 +1,17 @@
+---
+import Base from "../layouts/Base.astro";
+---
+<Base>
+  <main>
+    <h1>Esta página no existe.</h1>
+    <p><a href="/">Volver a datos</a></p>
+  </main>
+</Base>
+
+<style is:global>
+:root { --fondo: #F3F3F1; --tinta: #15171C; }
+@media (prefers-color-scheme: dark) { :root { --fondo: #121419; --tinta: #EEEFF2; } }
+body { margin: 0; background: var(--fondo); color: var(--tinta); font: 20px/1.5 system-ui, sans-serif; }
+main { max-width: 720px; margin: 0 auto; padding: 48px 16px; }
+a { color: inherit; text-underline-offset: 4px; }
+</style>
