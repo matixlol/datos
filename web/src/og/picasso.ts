@@ -1,30 +1,26 @@
 import C from "../data/picasso/citas.json";
 import { COLORES as K, h } from "./h";
 
-// The Picasso quote, the verdict, and how many famous quotes were never said.
+const ROJO = "#C2410C";
+
+// The Picasso quote, the name crossed out, and that it is not the only one.
 export function ogPicasso() {
   const p = C.find((c) => c.id === "picasso")!;
   const nunca = C.filter((c) => c.veredicto === "no la dijo").length;
+  const tachado = (t: string) =>
+    h("div", { display: "flex", position: "relative" }, t,
+      h("div", { position: "absolute", left: -6, right: -6, top: "54%", height: 8, background: ROJO, borderRadius: 4 }));
   return h(
     "div",
-    { width: "100%", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "space-between", background: K.fondo, color: K.tinta, padding: "52px 72px", fontFamily: "Bricolage" },
-    h(
-      "div",
-      { display: "flex", flexDirection: "column" },
-      h("div", { fontFamily: "Familjen", fontWeight: 600, fontSize: 36, color: K.gris }, "Milei la citó como de Picasso:"),
-      h("div", { fontWeight: 700, fontSize: 58, lineHeight: 1.1, letterSpacing: "-0.01em", marginTop: 14, maxWidth: 1040 }, `«${p.frase}»`),
-    ),
-    h(
-      "div",
-      { display: "flex", alignItems: "flex-end", justifyContent: "space-between" },
-      h("div", { fontWeight: 800, fontSize: 200, lineHeight: 0.8, letterSpacing: "-0.05em", marginLeft: -8, color: "#C2410C" }, "No."),
-      h(
-        "div",
-        { display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" },
-        h("div", { fontWeight: 800, fontSize: 76, lineHeight: 0.95 }, `${nunca} de ${C.length}`),
-        h("div", { fontFamily: "Familjen", fontWeight: 500, fontSize: 31, lineHeight: 1.2, color: K.gris, marginTop: 10, maxWidth: 560, textAlign: "right" }, "frases de famosos que citó Milei no las dijo quien él dice"),
-      ),
-    ),
-    h("div", { fontFamily: "Familjen", fontWeight: 500, fontSize: 32, color: K.gris }, "¿Lo dijo Picasso? · datos.mati.lol/picasso"),
+    { width: "100%", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", background: K.fondo, color: K.tinta, padding: "60px 72px 0", fontFamily: "Bricolage" },
+    h("div", { fontFamily: "Familjen", fontWeight: 600, fontSize: 32, color: K.gris }, `Milei, en ${p.usos.length} discursos oficiales:`),
+    h("div", { fontWeight: 700, fontSize: 76, lineHeight: 1.04, letterSpacing: "-0.015em", marginTop: 18, maxWidth: 1050 }, `«${p.frase}»`),
+    h("div", { display: "flex", alignItems: "baseline", gap: 26, marginTop: 32, fontSize: 60, lineHeight: 1 },
+      h("div", { display: "flex", fontWeight: 600, color: K.gris }, "—", h("div", { display: "flex", marginLeft: 14 }, tachado(p.autor))),
+      h("div", { fontWeight: 800, color: ROJO }, "Nunca la dijo.")),
+    h("div", { display: "flex", flexGrow: 1 }),
+    // X draws the domain over the bottom-left corner, so the bottom ~115px only holds our own domain, on the right
+    h("div", { fontFamily: "Familjen", fontWeight: 600, fontSize: 30, color: K.tinta }, `Y no es la única: ${nunca} de las ${C.length} frases de famosos que citó.`),
+    h("div", { display: "flex", justifyContent: "flex-end", alignItems: "center", height: 115, fontFamily: "Familjen", fontWeight: 500, fontSize: 26, color: K.gris }, "datos.mati.lol/picasso"),
   );
 }
