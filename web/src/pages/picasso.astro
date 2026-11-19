@@ -115,8 +115,8 @@ async function dibujar() {
   const fCab = `600 ${ig ? 36 : 28}px 'Familjen Grotesk'`;
 
   // quote, as large as fits its box
-  const cajaQ = ig ? 560 : 200;
-  let tam = ig ? 96 : 64, ls;
+  const cajaQ = ig ? 740 : 200;
+  let tam = ig ? 124 : 64, ls;
   for (; tam > 28; tam -= 2) {
     g.font = `700 ${tam}px 'Bricolage Grotesque'`;
     ls = lineas(g, `«${cita.frase}»`, ancho);
@@ -124,18 +124,18 @@ async function dibujar() {
   }
 
   // attribution row: — Author (crossed out when false)  Verdict.
-  const tA = ig ? 58 : 46;
+  const tA = ig ? 64 : 46;
   const fAut = `600 ${tA}px 'Bricolage Grotesque'`, fVer = `800 ${tA}px 'Bricolage Grotesque'`;
   const veredicto = falsa ? "Nunca la dijo." : `${ETIQUETA[cita.veredicto]}.`;
   const wAut = mide(`— ${cita.autor}`, fAut), wVer = mide(veredicto, fVer);
   const dosFilas = wAut + 24 + wVer > ancho;
 
   // box: where it came from, or what we found
-  const fCaja = `500 ${ig ? 32 : 24}px 'Familjen Grotesk'`, fRot = `600 ${ig ? 32 : 24}px 'Familjen Grotesk'`, lhC = ig ? 44 : 32, pC = ig ? 28 : 20;
+  const fCaja = `500 ${ig ? 36 : 24}px 'Familjen Grotesk'`, fRot = `600 ${ig ? 36 : 24}px 'Familjen Grotesk'`, lhC = ig ? 48 : 32, pC = ig ? 32 : 20;
   g.font = fCaja;
   const cuerpo = lineas(g, cita.origen ? cita.origen.texto : cita.explicacion, ancho - 2 * pC).slice(0, ig ? 6 : 3);
   const rotulo = cita.origen ? "De dónde lo sacó." : { "la dijo": "Dónde la dijo.", "parecida": "Qué dijo en realidad.", "sin rastro": "Qué encontramos.", "no la dijo": "Por qué no." }[cita.veredicto];
-  const altoCaja = 2 * pC + (cuerpo.length + 1) * lhC - (lhC - (ig ? 32 : 24));
+  const altoCaja = 2 * pC + (cuerpo.length + 1) * lhC - (lhC - (ig ? 36 : 24));
 
   // bottom band (X draws its own label over the bottom-left, so ours sits on the right)
   const banda = ig ? 150 : 96;
@@ -144,9 +144,12 @@ async function dibujar() {
   // vertical layout: top block, box and bottom band spread like the OG (space-between)
   const altoArriba = (ig ? 36 : 28) + (ig ? 22 : 14) + ls.length * tam * 1.06 + (ig ? 30 : 20) + tA * (dosFilas ? 2.15 : 1);
   const top = ig ? 80 : 52;
-  const hueco = Math.max(ig ? 40 : 20, (H - top - altoArriba - altoCaja - banda) / 2);
+  // X: spread like the OG. Instagram is tall, so gaps are capped and the group is centered above the band.
+  const libre = H - top - altoArriba - altoCaja - banda;
+  const hueco = ig ? Math.max(48, Math.min(80, libre / 2)) : Math.max(20, libre / 2);
+  const corrida = ig ? Math.max(0, (libre - 2 * hueco) / 2) : 0;
 
-  let y = top + (ig ? 30 : 23);
+  let y = top + corrida + (ig ? 30 : 23);
   texto(cuando, pad, y, fCab, GRIS);
   y += (ig ? 22 : 14) + tam * 0.86;
   for (const l of ls) { texto(l, pad - 3, y, `700 ${tam}px 'Bricolage Grotesque'`, TINTA); y += tam * 1.06; }
@@ -160,11 +163,11 @@ async function dibujar() {
 
   let yc = y + tA * 0.18 + hueco;
   g.fillStyle = col + "14"; g.beginPath(); g.roundRect(pad, yc, ancho, altoCaja, 14); g.fill();
-  let yt = yc + pC + (ig ? 26 : 19);
+  let yt = yc + pC + (ig ? 29 : 19);
   texto(rotulo, pad + pC, yt, fRot, col);
   for (const l of cuerpo) { yt += lhC; texto(l, pad + pC, yt, fCaja, TINTA); }
 
-  const fNota = `600 ${ig ? 26 : 21}px 'Familjen Grotesk'`, fDom = `500 ${ig ? 28 : 21}px 'Familjen Grotesk'`;
+  const fNota = `600 ${ig ? 30 : 21}px 'Familjen Grotesk'`, fDom = `500 ${ig ? 30 : 21}px 'Familjen Grotesk'`;
   const der = W - pad, yB = H - banda / 2 + 8;
   g.textAlign = "right";
   if (ig) { texto(nota, der, yB - 22, fNota, TINTA); texto("datos.mati.lol/picasso", der, yB + 22, fDom, GRIS); }
