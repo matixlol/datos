@@ -68,7 +68,7 @@ function pintar() {
     li.className = "cita" + (c.id === "picasso" ? " picasso" : "");
     const n = c.usos.length;
     li.innerHTML = `<blockquote>«${esc(c.frase)}»</blockquote>
-      <p class="quien">Según Milei, <b>${esc(c.autor)}</b> · ${n === 1 ? "la usó 1 vez" : `la usó ${n} veces`}</p>
+      <p class="quien">Según Milei, de <b>${esc(c.autor)}</b>. ${n === 1 ? "La usó 1 vez." : `La usó ${n} veces.`}</p>
       <div class="fila"><p class="veredicto ${CLASE[c.veredicto]}">${ETIQUETA[c.veredicto]}</p><button class="compartir" type="button">Compartir</button></div>
       <p class="explica">${esc(c.explicacion)} <a href="${esc(c.fuente)}" rel="noopener">Fuente</a></p>
       ${c.origen ? `<div class="origen">${c.origen.imagen ? `<a href="${esc(c.origen.url)}" rel="noopener"><img src="${c.origen.imagen}" alt="La frase como circula en internet" loading="lazy"></a>` : ""}<p><b>De dónde lo sacó.</b> ${esc(c.origen.texto)} <a href="${esc(c.origen.url)}" rel="noopener">Ver</a></p></div>` : ""}
@@ -122,9 +122,10 @@ async function dibujar() {
   const grande = ig ? 120 : 76, fExp = `400 ${ig ? 34 : 26}px 'Familjen Grotesk'`, lhExp = ig ? 46 : 34;
   g.font = fExp;
   const exp = lineas(g, cita.origen ? cita.origen.texto : cita.explicacion, ancho).slice(0, ig ? 4 : 3);
+  const rotulo = cita.origen ? "De dónde lo sacó." : null, fRot = `700 ${ig ? 34 : 26}px 'Familjen Grotesk'`;
   // quote + verdict + explanation, centered between the top line and the footer rule
   const sepV = ig ? 90 : 40, sepE = ig ? 66 : 46;
-  const alto = ls.length * tam * 1.12 - tam * 0.32 + sepV + grande * 0.8 + sepE + (exp.length - 1) * lhExp;
+  const alto = ls.length * tam * 1.12 - tam * 0.32 + sepV + grande * 0.8 + sepE + (exp.length - 1 + (rotulo ? 1 : 0)) * lhExp;
   const libre = piso - arriba - 20;
   let y = arriba + Math.max(ig ? 70 : 44, (libre - alto) / 2) + tam * 0.8;
   for (const l of ls) { texto(l, pad - 4, y, `600 ${tam}px 'Bricolage Grotesque'`, TINTA); y += tam * 1.12; }
@@ -135,6 +136,7 @@ async function dibujar() {
   g.fillStyle = col; g.beginPath(); g.arc(pad + grande * 0.2, y - grande * 0.33, grande * 0.2, 0, 7); g.fill();
   texto(`${ETIQUETA[cita.veredicto]}.`, pad + grande * 0.55, y, `800 ${grande}px 'Bricolage Grotesque'`, col);
   y += sepE;
+  if (rotulo) { texto(rotulo, pad, y, fRot, col); y += lhExp; }
   for (const l of exp) { texto(l, pad, y, fExp, TINTA); y += lhExp; }
 
   // footer
