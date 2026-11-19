@@ -71,7 +71,7 @@ function pintar() {
       <p class="quien">Según Milei, <b>${esc(c.autor)}</b> · ${n === 1 ? "la usó 1 vez" : `la usó ${n} veces`}</p>
       <div class="fila"><p class="veredicto ${CLASE[c.veredicto]}">${ETIQUETA[c.veredicto]}</p><button class="compartir" type="button">Compartir</button></div>
       <p class="explica">${esc(c.explicacion)} <a href="${esc(c.fuente)}" rel="noopener">Fuente</a></p>
-      ${c.origen ? `<div class="origen">${c.origen.imagen ? `<a href="${esc(c.origen.url)}" rel="noopener"><img src="${c.origen.imagen}" alt="La frase como circula en internet" loading="lazy"></a>` : ""}<p><b>De dónde salió.</b> ${esc(c.origen.texto)} <a href="${esc(c.origen.url)}" rel="noopener">Ver</a></p></div>` : ""}
+      ${c.origen ? `<div class="origen">${c.origen.imagen ? `<a href="${esc(c.origen.url)}" rel="noopener"><img src="${c.origen.imagen}" alt="La frase como circula en internet" loading="lazy"></a>` : ""}<p><b>De dónde lo sacó.</b> ${esc(c.origen.texto)} <a href="${esc(c.origen.url)}" rel="noopener">Ver</a></p></div>` : ""}
       <p class="usos">${c.usos.map((u) => `<a href="${esc(u.url)}" rel="noopener">${fecha(u.fecha)}</a>`).join("")}</p>`;
     li.querySelector(".compartir").onclick = () => abrir(c);
     return li;
