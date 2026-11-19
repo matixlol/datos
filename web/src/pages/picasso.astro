@@ -71,6 +71,7 @@ function pintar() {
       <p class="quien">Según Milei, <b>${esc(c.autor)}</b> · ${n === 1 ? "la usó 1 vez" : `la usó ${n} veces`}</p>
       <div class="fila"><p class="veredicto ${CLASE[c.veredicto]}">${ETIQUETA[c.veredicto]}</p><button class="compartir" type="button">Compartir</button></div>
       <p class="explica">${esc(c.explicacion)} <a href="${esc(c.fuente)}" rel="noopener">Fuente</a></p>
+      ${c.origen ? `<div class="origen">${c.origen.imagen ? `<a href="${esc(c.origen.url)}" rel="noopener"><img src="${c.origen.imagen}" alt="La frase como circula en internet" loading="lazy"></a>` : ""}<p><b>De dónde salió.</b> ${esc(c.origen.texto)} <a href="${esc(c.origen.url)}" rel="noopener">Ver</a></p></div>` : ""}
       <p class="usos">${c.usos.map((u) => `<a href="${esc(u.url)}" rel="noopener">${fecha(u.fecha)}</a>`).join("")}</p>`;
     li.querySelector(".compartir").onclick = () => abrir(c);
     return li;
@@ -120,7 +121,7 @@ async function dibujar() {
   }
   const grande = ig ? 120 : 76, fExp = `400 ${ig ? 34 : 26}px 'Familjen Grotesk'`, lhExp = ig ? 46 : 34;
   g.font = fExp;
-  const exp = lineas(g, cita.explicacion, ancho).slice(0, 3);
+  const exp = lineas(g, cita.origen ? cita.origen.texto : cita.explicacion, ancho).slice(0, ig ? 4 : 3);
   // quote + verdict + explanation, centered between the top line and the footer rule
   const sepV = ig ? 90 : 40, sepE = ig ? 66 : 46;
   const alto = ls.length * tam * 1.12 - tam * 0.32 + sepV + grande * 0.8 + sepE + (exp.length - 1) * lhExp;
@@ -213,6 +214,10 @@ h1 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size
 .usos { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 13px; color: var(--tenue); }
 .usos a { color: var(--gris); }
 .cita.picasso blockquote { font-size: 28px; }
+.origen { display: flex; gap: 14px; align-items: flex-start; max-width: 60ch; margin-top: 4px; padding: 12px 14px; border-radius: 10px; background: color-mix(in srgb, var(--rojo) 7%, transparent); font-size: 15px; line-height: 1.45; }
+.origen b { font-weight: 700; color: var(--rojo); }
+.origen img { display: block; width: 104px; height: 104px; object-fit: cover; border-radius: 6px; flex: none; }
+.origen a { color: var(--tinta); }
 
 footer { grid-column: 2; margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--linea); font-size: 14px; color: var(--gris); display: grid; gap: 10px; max-width: 68ch; }
 footer h2 { font-family: "Bricolage Grotesque", sans-serif; font-size: 18px; color: var(--tinta); }
