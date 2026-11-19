@@ -81,6 +81,7 @@ pintar();
 
 // share card: one quote, drawn on a canvas, always in the light palette
 const FORMATOS = { ig: [1080, 1350], x: [1200, 675] };
+const MESES = "enero febrero marzo abril mayo junio julio agosto septiembre octubre noviembre diciembre".split(" ");
 const COLOR = { "no la dijo": "#C2410C", "sin rastro": "#A16207", "parecida": "#A16207", "la dijo": "#3F6212" };
 let formato = "ig", cita = null, tarjetaBlob = null;
 function lineas(g, t, ancho) {
@@ -94,55 +95,81 @@ function lineas(g, t, ancho) {
 }
 async function dibujar() {
   const [W, H] = FORMATOS[formato];
-  await Promise.all(["800 100px 'Bricolage Grotesque'", "600 40px 'Bricolage Grotesque'", "400 30px 'Familjen Grotesk'", "600 30px 'Familjen Grotesk'"].map((f) => document.fonts.load(f)));
-  // laid out at W×H, rasterized at 2× so it stays sharp
+  await Promise.all(["800 100px 'Bricolage Grotesque'", "700 100px 'Bricolage Grotesque'", "600 40px 'Bricolage Grotesque'", "500 30px 'Familjen Grotesk'", "600 30px 'Familjen Grotesk'"].map((f) => document.fonts.load(f)));
+  // same design as the page's Open Graph image; laid out at W×H, rasterized at 2×
   const c = document.createElement("canvas"); c.width = W * 2; c.height = H * 2;
   const g = c.getContext("2d");
   g.scale(2, 2);
-  const TINTA = "#15171C", GRIS = "#5E626B", LINEA = "#DCDDD9";
+  const TINTA = "#15171C", GRIS = "#454950";
   g.fillStyle = "#F3F3F1"; g.fillRect(0, 0, W, H);
   g.textBaseline = "alphabetic";
   const ig = formato === "ig";
   const pad = ig ? 80 : 64, ancho = W - 2 * pad;
   const texto = (t, x, y, font, color) => { g.font = font; g.fillStyle = color; g.fillText(t, x, y); return g.measureText(t).width; };
+  const mide = (t, font) => { g.font = font; return g.measureText(t).width; };
+  const col = COLOR[cita.veredicto], falsa = cita.veredicto === "no la dijo";
 
-  // top: who Milei credited
-  const arriba = pad + (ig ? 28 : 22);
-  texto(`Milei la citó como de ${cita.autor}:`, pad, arriba, `600 ${ig ? 38 : 28}px 'Bricolage Grotesque'`, GRIS);
-  const piso = H - pad - (ig ? 92 : 62);
+  // header
+  const u = cita.usos[cita.usos.length - 1].fecha;
+  const cuando = cita.usos.length === 1 ? `Milei, el ${+u.slice(8)} de ${MESES[+u.slice(5, 7) - 1]} de ${u.slice(0, 4)}:` : `Milei, en ${cita.usos.length} discursos oficiales:`;
+  const fCab = `600 ${ig ? 36 : 28}px 'Familjen Grotesk'`;
 
-  // the quote, as large as fits its box
-  const cajaQ = ig ? 620 : 250;
-  let tam = ig ? 100 : 64, ls;
-  for (; tam > 30; tam -= 2) {
-    g.font = `600 ${tam}px 'Bricolage Grotesque'`;
+  // quote, as large as fits its box
+  const cajaQ = ig ? 560 : 200;
+  let tam = ig ? 96 : 64, ls;
+  for (; tam > 28; tam -= 2) {
+    g.font = `700 ${tam}px 'Bricolage Grotesque'`;
     ls = lineas(g, `«${cita.frase}»`, ancho);
-    if (ls.length * tam * 1.12 <= cajaQ) break;
+    if (ls.length * tam * 1.06 <= cajaQ) break;
   }
-  const grande = ig ? 120 : 76, fExp = `400 ${ig ? 34 : 26}px 'Familjen Grotesk'`, lhExp = ig ? 46 : 34;
-  g.font = fExp;
-  const exp = lineas(g, cita.origen ? cita.origen.texto : cita.explicacion, ancho).slice(0, ig ? 4 : 3);
-  const rotulo = cita.origen ? "De dónde lo sacó." : null, fRot = `700 ${ig ? 34 : 26}px 'Familjen Grotesk'`;
-  // quote + verdict + explanation, centered between the top line and the footer rule
-  const sepV = ig ? 90 : 40, sepE = ig ? 66 : 46;
-  const alto = ls.length * tam * 1.12 - tam * 0.32 + sepV + grande * 0.8 + sepE + (exp.length - 1 + (rotulo ? 1 : 0)) * lhExp;
-  const libre = piso - arriba - 20;
-  let y = arriba + Math.max(ig ? 70 : 44, (libre - alto) / 2) + tam * 0.8;
-  for (const l of ls) { texto(l, pad - 4, y, `600 ${tam}px 'Bricolage Grotesque'`, TINTA); y += tam * 1.12; }
 
-  // verdict
-  y += sepV - tam * 1.12 + grande * 0.8;
-  const col = COLOR[cita.veredicto];
-  g.fillStyle = col; g.beginPath(); g.arc(pad + grande * 0.2, y - grande * 0.33, grande * 0.2, 0, 7); g.fill();
-  texto(`${ETIQUETA[cita.veredicto]}.`, pad + grande * 0.55, y, `800 ${grande}px 'Bricolage Grotesque'`, col);
-  y += sepE;
-  if (rotulo) { texto(rotulo, pad, y, fRot, col); y += lhExp; }
-  for (const l of exp) { texto(l, pad, y, fExp, TINTA); y += lhExp; }
+  // attribution row: — Author (crossed out when false)  Verdict.
+  const tA = ig ? 58 : 46;
+  const fAut = `600 ${tA}px 'Bricolage Grotesque'`, fVer = `800 ${tA}px 'Bricolage Grotesque'`;
+  const veredicto = falsa ? "Nunca la dijo." : `${ETIQUETA[cita.veredicto]}.`;
+  const wAut = mide(`— ${cita.autor}`, fAut), wVer = mide(veredicto, fVer);
+  const dosFilas = wAut + 24 + wVer > ancho;
 
-  // footer
-  g.fillStyle = LINEA; g.fillRect(pad, piso, ancho, 2);
-  texto(resumen, pad, H - pad - (ig ? 40 : 26), `400 ${ig ? 24 : 20}px 'Familjen Grotesk'`, GRIS);
-  texto("datos.mati.lol/picasso", pad, H - pad + (ig ? 4 : 6), `600 ${ig ? 30 : 24}px 'Familjen Grotesk'`, TINTA);
+  // box: where it came from, or what we found
+  const fCaja = `500 ${ig ? 32 : 24}px 'Familjen Grotesk'`, fRot = `600 ${ig ? 32 : 24}px 'Familjen Grotesk'`, lhC = ig ? 44 : 32, pC = ig ? 28 : 20;
+  g.font = fCaja;
+  const cuerpo = lineas(g, cita.origen ? cita.origen.texto : cita.explicacion, ancho - 2 * pC).slice(0, ig ? 6 : 3);
+  const rotulo = cita.origen ? "De dónde lo sacó." : { "la dijo": "Dónde la dijo.", "parecida": "Qué dijo en realidad.", "sin rastro": "Qué encontramos.", "no la dijo": "Por qué no." }[cita.veredicto];
+  const altoCaja = 2 * pC + (cuerpo.length + 1) * lhC - (lhC - (ig ? 32 : 24));
+
+  // bottom band (X draws its own label over the bottom-left, so ours sits on the right)
+  const banda = ig ? 150 : 96;
+  const nota = falsa ? `Y no es la única: ${nunca.length} de ${total} frases de famosos.` : `${nunca.length} de ${total} frases de famosos que citó no son de quien él dice.`;
+
+  // vertical layout: top block, box and bottom band spread like the OG (space-between)
+  const altoArriba = (ig ? 36 : 28) + (ig ? 22 : 14) + ls.length * tam * 1.06 + (ig ? 30 : 20) + tA * (dosFilas ? 2.15 : 1);
+  const top = ig ? 80 : 52;
+  const hueco = Math.max(ig ? 40 : 20, (H - top - altoArriba - altoCaja - banda) / 2);
+
+  let y = top + (ig ? 30 : 23);
+  texto(cuando, pad, y, fCab, GRIS);
+  y += (ig ? 22 : 14) + tam * 0.86;
+  for (const l of ls) { texto(l, pad - 3, y, `700 ${tam}px 'Bricolage Grotesque'`, TINTA); y += tam * 1.06; }
+  y += (ig ? 30 : 20) - tam * 1.06 + tA * 0.82 + tam * 0.2;
+  const wRaya = mide("— ", fAut);
+  texto("— ", pad, y, fAut, GRIS);
+  const wNom = texto(cita.autor, pad + wRaya, y, fAut, GRIS);
+  if (falsa) { g.fillStyle = col; g.beginPath(); g.roundRect(pad + wRaya - 5, y - tA * 0.33, wNom + 10, ig ? 7 : 6, 3); g.fill(); }
+  if (dosFilas) { y += tA * 1.15; texto(veredicto, pad, y, fVer, col); }
+  else texto(veredicto, pad + wRaya + wNom + 24, y, fVer, col);
+
+  let yc = y + tA * 0.18 + hueco;
+  g.fillStyle = col + "14"; g.beginPath(); g.roundRect(pad, yc, ancho, altoCaja, 14); g.fill();
+  let yt = yc + pC + (ig ? 26 : 19);
+  texto(rotulo, pad + pC, yt, fRot, col);
+  for (const l of cuerpo) { yt += lhC; texto(l, pad + pC, yt, fCaja, TINTA); }
+
+  const fNota = `600 ${ig ? 26 : 21}px 'Familjen Grotesk'`, fDom = `500 ${ig ? 28 : 21}px 'Familjen Grotesk'`;
+  const der = W - pad, yB = H - banda / 2 + 8;
+  g.textAlign = "right";
+  if (ig) { texto(nota, der, yB - 22, fNota, TINTA); texto("datos.mati.lol/picasso", der, yB + 22, fDom, GRIS); }
+  else { const wd = texto("datos.mati.lol/picasso", der, yB, fDom, GRIS); texto(nota, der - wd - 32, yB, fNota, TINTA); }
+  g.textAlign = "left";
 
   tarjetaBlob = await new Promise((r) => c.toBlob(r, "image/png"));
   const img = $("tarjeta");
